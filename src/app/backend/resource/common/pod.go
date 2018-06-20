@@ -58,6 +58,8 @@ func FilterPodsForJob(job batch.Job, pods []v1.Pod) []v1.Pod {
 	return result
 }
 
+
+
 // GetContainerImages returns container image strings from the given pod spec.
 func GetContainerImages(podTemplate *v1.PodSpec) []string {
 	var containerImages []string
@@ -65,6 +67,69 @@ func GetContainerImages(podTemplate *v1.PodSpec) []string {
 		containerImages = append(containerImages, container.Image)
 	}
 	return containerImages
+}
+
+// GetNonduplicateContainerImages returns list of container image strings without duplicates
+func GetNonduplicateContainerImages(podList []v1.Pod) []string{
+  var containerImages []string
+  for _, pod := range podList {
+    for _, container := range pod.Spec.Containers {
+      if noStringInSlice(container.Image, containerImages){
+        containerImages = append(containerImages, container.Image)
+      }
+    }
+  }
+  return containerImages
+}
+
+// GetNonduplicateInitContainerImages returns list of init container image strings without duplicates
+func GetNonduplicateInitContainerImages(podList []v1.Pod) []string{
+  var initContainerImages []string
+  for _, pod := range podList {
+    for _, initContainer := range pod.Spec.InitContainers {
+      if noStringInSlice(initContainer.Image, initContainerImages){
+        initContainerImages = append(initContainerImages, initContainer.Image)
+      }
+    }
+  }
+  return initContainerImages
+}
+
+// GetNonduplicateContainerNames returns list of container names strings without duplicates
+func GetNonduplicateContainerNames(podList []v1.Pod) []string{
+  var containerNames []string
+  for _, pod := range podList {
+    for _, container := range pod.Spec.Containers {
+      if noStringInSlice(container.Name, containerNames){
+        containerNames = append(containerNames, container.Name)
+      }
+    }
+  }
+  return containerNames
+}
+
+// GetNonduplicateInitContainerNames returns list of init container names strings without duplicates
+func GetNonduplicateInitContainerNames(podList []v1.Pod) []string{
+  var initContainerNames []string
+  for _, pod := range podList {
+    for _, initContainer := range pod.Spec.InitContainers {
+      if noStringInSlice(initContainer.Name, initContainerNames){
+        initContainerNames = append(initContainerNames, initContainer.Name)
+      }
+    }
+  }
+  return initContainerNames
+}
+
+
+//noStringInSlice checks if string in array
+func noStringInSlice(str string, array []string) bool {
+  for _, alreadystr := range array {
+    if alreadystr == str {
+      return false
+    }
+  }
+  return true
 }
 
 // GetInitContainerImages returns init container image strings from the given pod spec.
